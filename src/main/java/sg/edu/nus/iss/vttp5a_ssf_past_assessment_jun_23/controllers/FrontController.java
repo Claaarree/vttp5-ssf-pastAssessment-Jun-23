@@ -2,13 +2,11 @@ package sg.edu.nus.iss.vttp5a_ssf_past_assessment_jun_23.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -48,44 +46,52 @@ public class FrontController {
 				session.setAttribute("loginAttempts", loginAttempts);
 			}
 
-			try {
-				authenticationService.authenticate(u.getUsername(), u.getPassword());
-				mav.setViewName("redirect:/protected");
+			if (authenticationService.isLocked(u.getUsername())){
+				mav.setViewName("view2");
+			} else {
+				try {
+					authenticationService.authenticate(u.getUsername(), u.getPassword());
+					u.setIsAuthenticated(true);
+					mav.setViewName("redirect:/protected");
+					session.setAttribute("authenticated", u.getIsAuthenticated());
+	
+				} catch (Exception e) {
+					ObjectError badLogin = new ObjectError("badLogin", 
+					"Bad login attempt! Please try again!");
+					results.addError(badLogin);
+	
+					mav.setViewName("view0");
+					Captcha captcha = new Captcha();
+					mav.addObject("captcha", captcha);
+					
+					loginAttempts = (Integer)session.getAttribute("loginAttempts");
+					System.out.println("login attempts: " + loginAttempts);
+					if (captcha.getAnswer() != u.getAnswer() && loginAttempts > 1) {
+						ObjectError captchaError = new ObjectError("captchaError", 
+						"The captcha answer was wrong! Please try again!");
+						results.addError(captchaError);
+					}
+	
+					if (loginAttempts == 3){
+						mav.setViewName("view2");
+						authenticationService.disableUser(u.getUsername());
+						session.removeAttribute("loginAttempts");
+					} else {
+						session.setAttribute("loginAttempts", loginAttempts + 1);
+					}				
+				} 
+			}
 
-			} catch (Exception e) {
-				ObjectError badLogin = new ObjectError("badLogin", 
-				"Bad login attempt! Please try again!");
-				results.addError(badLogin);
-
-				mav.setViewName("view0");
-				Captcha captcha = new Captcha();
-				mav.addObject("captcha", captcha);
-				
-				loginAttempts = (Integer)session.getAttribute("loginAttempts");
-				System.out.println("login attempts: " + loginAttempts);
-				if (captcha.getAnswer() != u.getAnswer() && loginAttempts > 1) {
-					ObjectError captchaError = new ObjectError("captchaError", 
-					"The captcha answer was wrong! Please try again!");
-					results.addError(captchaError);
-				}
-
-				if (loginAttempts == 3){
-					mav.setViewName("view2");
-					session.removeAttribute("loginAttempts");
-				} else {
-					session.setAttribute("loginAttempts", loginAttempts + 1);
-				}
-
-				
-			} 
 		}
 
 		return mav;
 	}
 
-	@GetMapping("/protected")
-	public ModelAndView loginSuccess() {
-		ModelAndView mav = new ModelAndView("view1");
+	@GetMapping("/logout")
+	public ModelAndView logout(HttpSession session) {
+		ModelAndView mav = new ModelAndView("redirect:/");
+		session.invalidate();
 		return mav;
 	}
+
 }
