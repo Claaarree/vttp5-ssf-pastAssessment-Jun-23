@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<!--
+	TODO: Task 1, Task 2, Task 3
+-->
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Login</title>
+	</head>
+	<body>
+
+		<h2>Please Login</h2>
+		<form method="post" th:action="@{/login}" data-th-object="${user}">
+			<table>
+				
+				<tr>
+					<td> 
+						<label for="username">Username:</label> 
+					</td>
+					<td>
+						<input type="text" id="username" size="30" name="username"
+								th:field="*{username}" placeholder="Please type in your username" >
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label for="password">Password:</label>
+							</td>
+							<td>
+								<input type="password" id="password" size="30" name="password"
+								th:field="*{password}" placeholder="Please type in your password">
+							</td>
+						</tr>
+						
+						<span th:if="${#objects.nullSafe(captcha, default)}">
+							<tr>
+								<td></td>
+								<td>
+									What is <span th:utext="${captcha.first} + ' '"></span>
+											<span th:utext="${captcha.operator} + ' '"></span>
+											<span th:utext="${captcha.second}"></span>
+											?
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label for="answer">Answer:</label>
+								</td>
+								<td>
+									<input type="number" id="answer" th:field="*{answer}" placeholder="Answer">
+								</td>
+							</tr>
+
+						</span>
+						<tr>
+							<td></td>
+							<td>
+								<button type="submit">Login</button>
+							</td>
+						</tr>
+					</table>
+					<p th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
+					<p th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+					<div th:if="${#fields.hasErrors('global')}">
+						<ul>
+							<li th:each="err : ${#fields.errors('global')}">
+								<span th:utext="${err}"></span>
+							</li>
+						</ul>
+					</div>
+		</form>
+		
+	</body>
+</html>
