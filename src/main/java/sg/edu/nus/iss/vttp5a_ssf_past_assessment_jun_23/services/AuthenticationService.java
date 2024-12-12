@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
+import sg.edu.nus.iss.vttp5a_ssf_past_assessment_jun_23.component.UserComponent;
 import sg.edu.nus.iss.vttp5a_ssf_past_assessment_jun_23.respositories.AuthenticationRepository;
 
 @Service
@@ -39,6 +40,7 @@ public class AuthenticationService {
 				.body(payload.toString());
 
 		ResponseEntity<String> res = template.exchange(req, String.class);
+
 	}
 
 	// TODO: Task 3

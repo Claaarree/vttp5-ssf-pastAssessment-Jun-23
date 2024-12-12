@@ -15,6 +15,8 @@ public class ProtectedController {
 	// Write a controller to protect resources rooted under /protected
 	@GetMapping
 	public ModelAndView showContent(HttpSession session) {
+		// System.out.println(session.getAttribute("authenticated") + " in protected");
+
 		ModelAndView mav = new ModelAndView();
 		if(session.getAttribute("authenticated") == null || 
 		!(Boolean)session.getAttribute("authenticated")

@@ -7,6 +7,7 @@ public class Captcha {
     private Double second;
     private Double answer;
     private String operator;
+    private String question;
 
     Random rand = new Random();
     
@@ -35,6 +36,7 @@ public class Captcha {
             default:
                 break;
         }
+        this.question = first + operator + second;
     }
 
     public Double add() {
@@ -84,6 +86,16 @@ public class Captcha {
     public void setOperator(String operator) {
         this.operator = operator;
     }
+
+    public String getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(String question) {
+        this.question = question;
+    }
+
+    
 
     
 }
